@@ -97,7 +97,6 @@ public class Field {
 			totalDistance += 1/(distance + rnd.nextDouble()*e.getKey().getLuck());
 			distanceMap.put(e.getKey(), totalDistance);
 		}
-		System.out.println(distanceMap);
 		double rand = rnd.nextDouble() * totalDistance;
 		for (Entry<Player, Double> distance : distanceMap.entrySet()) {
 			double d = distance.getValue();
