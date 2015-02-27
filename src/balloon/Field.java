@@ -4,6 +4,7 @@ import java.awt.geom.Point2D;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,11 +19,13 @@ public class Field {
 	private Map<Player, Point2D> arena = new HashMap<>();
 	private Map<Player, Integer> scores = new HashMap<>();
 	private Player lastHitBalloon = null;
-	private Random rnd = new Random();
+	private Random rnd = new Random(32);
 	private Balloon balloon = new Balloon();
 	private static final Class<?>[] players = {
-			Player1.class,
-			Player2.class
+		AngryPenguin.class,
+		LuckyLoser.class,
+		Hydrophobe.class,
+		BackAndForth.class
 	};
 	public static void main(String[] args) throws IOException, InstantiationException, IllegalAccessException {
 		Field f = new Field();
@@ -37,7 +40,7 @@ public class Field {
 			f.scores.put(p, 0);
 		}
 		rw.append(f.toString());
-		for (int i = 0; i < 100; ++i) {
+		for (int i = 0; i < 1000; ++i) {
 			f.step();
 			rw.append(f.toString());
 		}
@@ -93,9 +96,9 @@ public class Field {
 		Map<Player, Double> distanceMap = new HashMap<>();
 		double totalDistance = 0;
 		for (Entry<Player, Point2D> e : arena.entrySet()) {
-			double distance = e.getValue().distance(balloon.getLocation());
-			totalDistance += 1/(distance + rnd.nextDouble()*e.getKey().getLuck());
-			distanceMap.put(e.getKey(), totalDistance);
+			double distance = 1/(e.getValue().distance(balloon.getLocation()) + rnd.nextDouble()*e.getKey().getLuck());
+			totalDistance += distance;
+			distanceMap.put(e.getKey(), distance);
 		}
 		double rand = rnd.nextDouble() * totalDistance;
 		for (Entry<Player, Double> distance : distanceMap.entrySet()) {
@@ -116,24 +119,26 @@ public class Field {
 		return ret;
 	}
 	public String toString() {
+		DecimalFormat df = new DecimalFormat("#.####");
 		StringBuilder r = new StringBuilder();
 		for (Entry<Player, Point2D> e : arena.entrySet()) {
-			String name = e.getKey().getClass().getCanonicalName() + "_" + e.getKey().hashCode();
+			String name = e.getKey().getClass().getCanonicalName();
+			Point2D p = e.getValue();
 			r.append(name);
 			r.append(':');
-			r.append(e.getValue().getX());
+			r.append(df.format(p.getX()));
 			r.append(',');
-			r.append(e.getValue().getY());
+			r.append(df.format(p.getY()));
 			r.append(':');
 			r.append(scores.get(e.getKey()));
 			r.append(';');
 		}
 		r.append('!');
-		r.append(balloon.getLocation().getX());
+		r.append(df.format(balloon.getLocation().getX()));
 		r.append(',');
-		r.append(balloon.getLocation().getY());
+		r.append(df.format(balloon.getLocation().getY()));
 		r.append(',');
-		r.append(balloon.getHeight());
+		r.append(df.format(balloon.getHeight()));
 		r.append('\n');
 		return r.toString();
 	}
